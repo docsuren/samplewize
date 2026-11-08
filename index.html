@@ -6,6 +6,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Samplewize">
 <meta name="theme-color" content="#2B3040">
 <title>Samplewize</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -65,6 +67,8 @@ p{margin:0}
 .tag.center{justify-items:center;text-align:center;padding-bottom:12px;border-bottom:2px solid var(--mark)}
 #adjfx .fx{overflow-x:auto;margin:6px 0 12px}.pane .card{min-width:0}
 .findit{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;margin-bottom:18px;background:var(--panel);color:var(--on-panel);border-radius:6px;text-decoration:none}
+.getapp{background:var(--surface);color:var(--ink);border:1px solid var(--accent)}.getapp span{color:var(--muted)}
+.go-arrow.alt{background:var(--accent);color:var(--on-accent)}
 .findit div{display:grid;gap:2px}.findit b{font-family:var(--display);font-weight:600;font-size:1.05rem}.findit span{font-size:.875rem;color:var(--panel-muted)}
 .go-arrow{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--mark);color:#1C1533;font-style:normal}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
@@ -88,7 +92,7 @@ textarea{width:100%;padding:11px 12px;font:inherit;color:var(--ink);background:v
 .ccode{display:block;padding:8px 10px;background:var(--tint);border-radius:4px;font:400 .8125rem/1.45 ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
 .qr{display:inline-block;background:#fff;padding:6px;border-radius:4px}.qr svg{display:block}
 .checks{background:var(--warn-bg);color:var(--warn-ink);border-color:transparent}
-.chk{display:grid;gap:3px;padding-top:8px;border-top:1px solid color-mix(in srgb,var(--warn-ink) 22%,transparent)}.chk:first-of-type{border-top:0;padding-top:0}
+.chk{display:grid;gap:3px;padding-top:8px;border-top:1px solid var(--line)}.chk:first-of-type{border-top:0;padding-top:0}
 .chk b{font-weight:600}.chk p{font-size:.9rem;line-height:1.45}.chk small{font-size:.75rem;line-height:1.35;opacity:.85}.chk a{color:inherit;font-weight:500}
 .okflag{background:var(--tint);color:var(--ink)}
 body.page-view .side{display:none}body.page-view .shell{grid-template-columns:minmax(0,1fr)}
@@ -2952,9 +2956,9 @@ function gRead(raw){
  else if(is(/fixed sample|sample (is )?fixed|available sample|existing records|all available (records|patients|cases)|post-?hoc power/))a.aim="fixed";
  else if(is(/cohort|case-?control|survival|hazard|time to |incidence|follow-?up/)||is(compare)||(!is(strongEst)&&is(assoc)))a.aim="associate";
  else if(is(strongEst)||is(/awareness|knowledge|attitude|\bkap\b|practices?\b|satisfaction|utili[sz]ation|estimate|assess|describe|\bmean\b|average|level of|status of|pattern of|profile|distribution of|survey|cross-?sectional/)){a.aim="estimate";if(is(assoc))a.also=true;}
- const time=/survival|hazard|time to |time-to-event|kaplan/,binS=/prevalence|proportion|percentage|magnitude|burden of|coverage/,con=/\bmean\b|average|\bscores?\b|\blevels?\b|pressure|hba1c|ha?emoglobin|\bbmi\b|(?<!birth )\bweight\b|\bheight\b|cholesterol|glucose|duration|length of stay|quality of life|\bqol\b|grip strength/,binW=/awareness|knowledge|attitude|\bkap\b|practices?\b|incidence|\brates?\b|presence|cure|mortality|death|remission|positiv|adherence|compliance|uptake|vaccination|resistance|success|failure|occurrence|risk factors?|anemia|anaemia|low birth weight|obesity|hypertension|diabetes/;
+ const time=/survival|hazard|time to |time-to-event|kaplan/,binS=/prevalence|proportion|percentage|magnitude|burden of|coverage/,con=/\bmean\b|average|\bscores?\b|\blevels?\b|pressure|hba1c|ha?emoglobin|\bbmi\b|\bweight\b|\bheight\b|cholesterol|glucose|duration|length of stay|quality of life|\bqol\b|grip strength/,binW=/awareness|knowledge|attitude|\bkap\b|practices?\b|incidence|\brates?\b|presence|cure|mortality|death|remission|positiv|adherence|compliance|uptake|vaccination|resistance|success|failure|occurrence|risk factors?|anemia|anaemia|low birth weight|obesity|hypertension|diabetes/;
  const countW=/number of (episodes|attacks|falls|exacerbations)|episodes per|count of/,ord=/ordinal|likert|modified rankin|\bmrs\b/,skew=/skewed|non-?normal|\bmedian\b/;
- if(is(time))a.outcome="time";else if(is(binS))a.outcome="binary";else if(is(countW))a.outcome="count";else if(is(ord))a.outcome="ordinal";else if(is(skew))a.outcome="nonnormal";else if(is(con))a.outcome="cont";else if(is(binW))a.outcome="binary";
+ if(is(time))a.outcome="time";else if(is(binS))a.outcome="binary";else if(is(countW))a.outcome="count";else if(is(ord))a.outcome="ordinal";else if(is(skew))a.outcome="nonnormal";else if(con.test(t.replace(/birth weight/g,"")))a.outcome="cont";else if(is(binW))a.outcome="binary";
  if(a.aim==="estimate"){if(is(/cluster|multi-?stage|30 ?x ?7/))a.sampling="cluster";else if(is(/finite|small population|population of \d+|all (the )?(students|staff|residents|employees) of/))a.sampling="finite";}
  if(a.aim==="associate"){
   if(is(/case-?control/))a.design=is(/matched/)?"matched":"cc";
@@ -3155,7 +3159,7 @@ function numbering(sh,m){
 const cite=(t,map)=>esc(t).replace(/\{r:([\w,]+)\}/g,(_,g)=>"["+g.split(",").map(k=>map[k]).sort((a,b)=>a-b).join(",")+"]");
 function listHTML(items,word,ph,id){
  const groups=[];items.forEach(s=>{let g=groups.find(x=>x.n===s.group);if(!g){g={n:s.group,a:[]};groups.push(g);}g.a.push(s);});
- return TAG+`<a class="findit" href="#guide" aria-label="Which formula should I use? Open the Guide"><div><b>Which formula should I use?</b><span>Describe your aim or objective and get suggestions</span></div><i class="go-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a><h2>${word}</h2><input class="search" id="${id}" type="search" placeholder="${ph}" aria-label="${ph}">`+
+ return TAG+`<a class="findit" href="#guide" aria-label="Which formula should I use? Open the Guide"><div><b>Which formula should I use?</b><span>Describe your aim or objective and get suggestions</span></div><i class="go-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a>${GETAPP}<h2>${word}</h2><input class="search" id="${id}" type="search" placeholder="${ph}" aria-label="${ph}">`+
  groups.map(g=>`<section class="grp"><h3>${esc(g.n)}</h3>${g.a.map(s=>{
   const sub=s.routes.length>1?`${s.routes.length} options`:"";
   const text=(s.title+" "+s.code+" "+stripCites(s.use)+" "+s.routes.map(r=>r[0]).join(" ")).toLowerCase();
@@ -3181,6 +3185,11 @@ let CUR=null;
 const TAGTXT='<b>அளவுகோல்</b><span>The yardstick for sample size in medical research</span>';
 const TAG='<div class="hero">'+HERO+'<p class="appname">Samplewize</p><div class="tag">'+TAGTXT+'</div></div>';
 const TAG2='<div class="tag center">'+TAGTXT+'</div>';
+const APK_URL="https://docsuren.github.io/samplewize/Samplewize.apk";
+const IN_APP=!!window.SWAndroid||location.protocol==="file:";
+const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const DL_ICON='<i class="go-arrow alt" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></i>';
+const GETAPP=IN_APP?"":IS_IOS?'<a class="findit getapp" href="#about"><div><b>Using an iPhone?</b><span>See how to add Samplewize to your Home Screen</span></div>'+DL_ICON+'</a>':'<a class="findit getapp" href="'+APK_URL+'" download="Samplewize.apk"><div><b>Download the Android app</b><span>APK file, about 0.5 MB</span></div>'+DL_ICON+'</a>';
 const COPYR="© 2026 Dr Surendran Venkataraman. All rights reserved.";
 const CREDIT='<div class="credit"><p>Created and compiled by<strong>Dr Surendran Venkataraman</strong></p><p class="copy">'+COPYR+'</p></div>';
 const addCredit=()=>$("#pane .pane-in").insertAdjacentHTML("beforeend",CREDIT);
@@ -3384,6 +3393,7 @@ function drawAbout(){
  $("#pane").innerHTML=`<div class="pane-in"><div class="page"><div class="hero">${HERO.replace(/id="([^"]+)"/g,'id="ab-$1"').replace(/url\(#([^)]+)\)/g,'url(#ab-$1)').replace(/href="#([^"]+)"/g,'href="#ab-$1"')}<p class="appname">Samplewize</p><div class="tag">${TAGTXT}</div></div>
  <section class="card"><h2>About the app</h2><p>Samplewize is an evidence-based sample size calculator for medical research. It covers ${DESIGNS.length} study designs and ${FORMULAS.length} formulas, each with its published sources, an adjusted formula, a ready write-up and a protocol section.</p></section>
  <section class="card"><h2>App information</h2><table class="grid info"><tbody>${row("Version","1.0")}${row("Released","November 2026")}${row("Available as","Web app and Android app")}${row("Internet","Not needed for calculations")}</tbody></table></section>
+ ${IN_APP?"":`<section class="card" id="install"><h2>Install the app</h2><p><strong>Android</strong></p><a class="btn solid" href="${APK_URL}" download="Samplewize.apk">Download the Android app</a><p class="cap">The app is not from the Play Store, so Android will ask you to allow installation from your browser. It requests no device permissions.</p><p><strong>iPhone</strong></p><p>Open this site in Safari, tap Share, then tap Add to Home Screen. On newer iOS versions, you may need to tap More first.</p></section>`}
  <section class="card"><h2>Creator</h2><p><strong>Dr Surendran Venkataraman</strong><br>MBBS, MD, DNB (Community Medicine)<br>Assistant Professor (Senior Scale)<br>Department of Community Medicine<br>Indira Gandhi Medical College and Research Institute, Puducherry, India</p></section>
  <section class="card"><h2>How to cite</h2><p id="ab-cite">${esc(REFS.Samplewize)}</p><button class="btn" id="ab-copy" type="button">Copy citation</button></section>
  <section class="card"><h2>Accuracy</h2><p>The calculations reproduced 1,038 results from the validated companion Excel workbooks. Formulas come from the published sources cited on each screen. <a href="#references">View all references</a>.</p></section>
