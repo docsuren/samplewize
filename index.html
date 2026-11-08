@@ -40,6 +40,12 @@ p{margin:0}
 .tabs{display:flex;gap:6px}
 .tabs a{padding:7px 12px;text-decoration:none;color:var(--ink);font-weight:500;background:var(--tint);border:1px solid var(--line);border-radius:5px}
 .tabs a.on{color:var(--on-accent);background:var(--accent);border-color:var(--accent)}
+.jump{justify-self:center;text-align:center}.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+#c-form{display:grid;gap:12px}.c-h{font-size:1.05rem;margin-top:6px}#c-list{display:grid;gap:10px}
+.post{display:grid;gap:6px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;min-width:0;overflow-wrap:anywhere}
+.post header,.kid header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px}.post header span,.kid header span{color:var(--muted);font-size:.8125rem}
+.post p{white-space:pre-wrap}.stars{color:var(--accent);letter-spacing:1px}.areply{padding:8px 10px;background:var(--tint);border-radius:4px;display:grid;gap:2px}.areply b{font-size:.8125rem}
+.kid{display:grid;gap:4px;padding:8px 0 0 10px;border-left:2px solid var(--line)}.post .link{justify-self:start;padding:4px 0}
 .ham{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-6px;color:var(--ink);border-radius:6px}.ham:hover,.ham.on{background:var(--tint)}
 .back{grid-column:1;justify-self:start;display:none;text-decoration:none;font-weight:500;white-space:nowrap}
 .bottom{display:none;position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);padding:0 max(8px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(8px,env(safe-area-inset-left,0px))}
@@ -2715,6 +2721,8 @@ var qrcode = function() {
 }));
 
 /* Calculation codes, QR records, and the protocol section as Word and PDF. No external services. */
+const SITE_URL="https://docsuren.github.io/samplewize/";
+const calcLink=code=>SITE_URL+"#"+code;
 function calcKeys(sh,m){return sh.inputs.filter(i=>m.keys.includes(i.k)).map(i=>i.k).concat(adjKeys(sh.adj));}
 const b64u=s=>btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 function encodeCalc(code,route,keys,vals,total){return "SW1-"+b64u(["1",code,route,total].concat(keys.map(k=>encodeURIComponent(String(vals[k])))).join("~"));}
@@ -2738,7 +2746,7 @@ function protocolBlocks(o){
  B.push({h:2,t:"Sample size"},{p:fin||("Result: "+r.final1+" ("+m.out.g[0]+")."),b:true});
  B.push({h:2,t:"Statement for the protocol"},{p:writeup(m,r,labels,nums,adj,appNum)});
  B.push({h:2,t:"References"},{refs:keys.concat("Samplewize").map(k=>refs[k])});
- B.push({h:2,t:"Calculation record"},{p:"Calculation code: "+code},{small:"Enter this code in Samplewize (Guide, Reopen a calculation) to reproduce these inputs and results. Replace bracketed text before use."});
+ B.push({h:2,t:"Calculation record"},{p:"Link: "+calcLink(code)},{p:"Calculation code: "+code},{small:"Scan the QR code or open the link to reproduce these inputs and results on the Samplewize website. The code can also be entered in the app under Guide, Reopen a calculation. Replace bracketed text before use."});
  return B;
 }
 function blocksToText(B){const L=[];B.forEach(b=>{if(b.h)L.push("",b.t.toUpperCase());else if(b.kv)b.kv.forEach(x=>L.push(x[0]+": "+x[1]));else if(b.f)b.f.forEach(x=>L.push(x));else if(b.tbl){L.push(b.tbl.head.join(" | "));b.tbl.rows.forEach(x=>L.push(x.join(" | ")));}else if(b.p)L.push(b.p);else if(b.small)L.push(b.small);else if(b.refs)b.refs.forEach((x,i)=>L.push((i+1)+". "+x));});return L.join("\n").trim();}
@@ -3191,8 +3199,16 @@ const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==
 const DL_ICON='<i class="go-arrow alt" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></i>';
 const GETAPP=IN_APP?"":IS_IOS?'<a class="findit getapp" href="#about"><div><b>Using an iPhone?</b><span>See how to add Samplewize to your Home Screen</span></div>'+DL_ICON+'</a>':'<a class="findit getapp" href="'+APK_URL+'" download="Samplewize.apk"><div><b>Download the Android app</b><span>APK file, about 0.5 MB</span></div>'+DL_ICON+'</a>';
 const COPYR="© 2026 Dr Surendran Venkataraman. All rights reserved.";
-const CREDIT='<div class="credit"><p>Created and compiled by<strong>Dr Surendran Venkataraman</strong></p><p class="copy">'+COPYR+'</p></div>';
-const addCredit=()=>$("#pane .pane-in").insertAdjacentHTML("beforeend",CREDIT);
+const CREDIT='<div class="credit"><p>Created and compiled by<strong>Dr Surendran Venkataraman</strong></p><p class="copy">'+COPYR+'</p><p class="copy visits" hidden></p></div>';
+const addCredit=()=>{$("#pane .pane-in").insertAdjacentHTML("beforeend",CREDIT);paintVisits();};
+const COMM={api:"",visits:null,posts:null,parent:null};
+function paintVisits(){if(COMM.visits===null)return;document.querySelectorAll(".visits").forEach(e=>{e.hidden=false;e.textContent="Visitors: "+COMM.visits.toLocaleString("en-IN");});}
+COMM.ready=(async()=>{
+ if(IN_APP||!/^https?:$/.test(location.protocol))return;
+ try{const c=await(await fetch("config.json",{cache:"no-store"})).json();if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(c.api||""))return;COMM.api=c.api;}catch(e){return;}
+ let seen=true;try{seen=!!localStorage.getItem("sw_seen");}catch(e){}
+ try{const d=await(await fetch(COMM.api+"?a="+(seen?"count":"hit"))).json();if(typeof d.count==="number"){COMM.visits=d.count;if(!seen)try{localStorage.setItem("sw_seen","1");}catch(e){}paintVisits();}}catch(e){}
+})();
 function drawGuide(sh){
  stopMini();
  sh.guide=QUAL_STRINGS;
@@ -3218,7 +3234,7 @@ function drawCalc(sh){
  <button class="btn" id="reset" type="button">Restore example values</button></form>
  <div class="rescol"><div class="res" id="result" aria-live="polite"></div><div id="reopened" hidden></div><section class="card checks" id="checks" hidden></section><section class="card"><h2>Sample size formula</h2><div id="adjfx"></div><pre class="ready" id="ftext"></pre><button class="btn" id="copyf" type="button">Copy formula</button></section><section class="card"><h2>Sample size write-up</h2><p id="statement"></p><p class="cap">Edit before use and replace the bracketed text.</p><button class="btn" id="copy" type="button">Copy write-up</button></section>
  <section class="card"><h2>Protocol section</h2><p class="cap">A ready section with the formula, planning values, adjustments, statement and references.</p><div class="field"><label for="p-obj">Primary objective (optional)</label><textarea id="p-obj" rows="2"></textarea></div><div class="btns"><button class="btn solid" id="xw" type="button">Word</button><button class="btn" id="xp" type="button">PDF</button><button class="btn" id="xc" type="button">Copy</button></div><p class="cap" id="xmsg" role="status"></p></section>
- <section class="card"><h2>Reopen this calculation</h2><p class="cap">A code that restores these inputs and verifies the result.</p><code class="ccode" id="ccode"></code><div class="btns"><button class="btn" id="cc-copy" type="button">Copy code</button><button class="btn" id="cc-link" type="button" hidden>Copy link</button><button class="btn" id="cc-qr" type="button">Show QR code</button></div><div id="qrbox" hidden></div></section></div></div>
+ <section class="card"><h2>Reopen this calculation</h2><p class="cap">A link, code and QR code that restore these inputs and verify the result.</p><code class="ccode" id="ccode"></code><div class="btns"><button class="btn" id="cc-copy" type="button">Copy code</button><button class="btn" id="cc-link" type="button">Copy link</button><button class="btn" id="cc-qr" type="button">Show QR code</button></div><div id="qrbox" hidden></div></section></div></div>
  <div class="more"><details open><summary>Formula</summary><div class="dbody">${tex}</div></details>
  <details id="sens-d"><summary>Try other values</summary><div class="dbody" id="sens"></div></details>
  <details><summary>Workings</summary><div class="dbody"><div class="tw"><table class="grid"><tbody id="work"></tbody></table></div></div></details>
@@ -3236,8 +3252,7 @@ function drawCalc(sh){
  $("#xw").addEventListener("click",()=>exportDoc("docx"));$("#xp").addEventListener("click",()=>exportDoc("pdf"));
  $("#xc").addEventListener("click",()=>{const r=compute(m,S.vals,meta,sh.adj);if(r.chk){$("#xmsg").textContent="Correct the inputs first.";return;}copyText(blocksToText(docBlocks(r)),"#xc","Copy");});
  $("#cc-copy").addEventListener("click",()=>copyText($("#ccode").textContent,"#cc-copy","Copy code"));
- const linkOK=/^https?:$/.test(location.protocol)&&window.top===window;$("#cc-link").hidden=!linkOK;
- $("#cc-link").addEventListener("click",()=>copyText(location.href.split("#")[0]+"#"+$("#ccode").textContent,"#cc-link","Copy link"));
+ $("#cc-link").addEventListener("click",()=>copyText(calcLink($("#ccode").textContent),"#cc-link","Copy link"));
  $("#cc-qr").addEventListener("click",()=>{const b=$("#qrbox");b.hidden=!b.hidden;$("#cc-qr").textContent=b.hidden?"Show QR code":"Hide QR code";drawQR();});
  buildSens();update();watchMini();
  if(REOPEN&&REOPEN.code===sh.code){const R=compute(m,S.vals,meta,sh.adj),ok=String(R.total)===REOPEN.total,el=$("#reopened");el.hidden=false;el.className="flag "+(ok?"okflag":"warn");el.textContent=ok?"Calculation reopened. The recalculated result matches the recorded value of "+REOPEN.total+".":"Calculation reopened, but the recalculated result ("+R.total+") differs from the recorded value ("+REOPEN.total+").";REOPEN=null;}
@@ -3253,8 +3268,8 @@ function watchMini(){
  miniObs.observe(f);miniObs.observe(r);f.addEventListener("focusin",paint);f.addEventListener("focusout",()=>setTimeout(paint,0));
 }
 function calcCode(r){const {sh,S,m}=CUR;return encodeCalc(sh.code,S.route,calcKeys(sh,m),S.vals,r.total);}
-function qrText(r){const {sh,S,m}=CUR,c=calcCode(r),t=["Samplewize",sh.code+" "+sh.title,sh.routes[S.route][0],"Result: "+r.total,"Code: "+c].join("\n").replace(/[^\x20-\x7E\n]/g,"-");return t.length<1100?t:c;}
-function drawQR(){const b=$("#qrbox");if(!b||b.hidden)return;const {sh,S,m,meta}=CUR,r=compute(m,S.vals,meta,sh.adj);b.innerHTML=r.chk?'<p class="cap">Correct the inputs first.</p>':`<div class="qr">${qrSvg(qrMatrix(qrText(r)),190)}</div><p class="cap">Scanning shows the result and the code, on any phone.</p>`;}
+function qrText(r){return calcLink(calcCode(r));}
+function drawQR(){const b=$("#qrbox");if(!b||b.hidden)return;const {sh,S,m,meta}=CUR,r=compute(m,S.vals,meta,sh.adj);b.innerHTML=r.chk?'<p class="cap">Correct the inputs first.</p>':`<div class="qr">${qrSvg(qrMatrix(qrText(r)),190)}</div><p class="cap">Scanning opens this calculation on the Samplewize website.</p>`;}
 function docBlocks(r){
  const {sh,S,m,meta}=CUR,labels={};Object.keys(meta).forEach(k=>labels[k]=meta[k].label);adjKeys(sh.adj).forEach(k=>labels[k]=ADJ[k].label);
  return protocolBlocks({sh,m,routeLabel:sh.routes[S.route][0],r,labels:labels,adj:sh.adj,plainOf:t=>PLAIN[t],refs:REFS,objective:$("#p-obj").value.trim(),code:calcCode(r)});
@@ -3391,19 +3406,55 @@ function drawGuidePage(){
 function drawAbout(){
  const row=(k,v)=>`<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`;
  $("#pane").innerHTML=`<div class="pane-in"><div class="page"><div class="hero">${HERO.replace(/id="([^"]+)"/g,'id="ab-$1"').replace(/url\(#([^)]+)\)/g,'url(#ab-$1)').replace(/href="#([^"]+)"/g,'href="#ab-$1"')}<p class="appname">Samplewize</p><div class="tag">${TAGTXT}</div></div>
+ <a class="btn solid jump" href="#about" id="to-comm">Queries, feedback and discussion</a>
  <section class="card"><h2>About the app</h2><p>Samplewize is an evidence-based sample size calculator for medical research. It covers ${DESIGNS.length} study designs and ${FORMULAS.length} formulas, each with its published sources, an adjusted formula, a ready write-up and a protocol section.</p></section>
  <section class="card"><h2>App information</h2><table class="grid info"><tbody>${row("Version","1.0")}${row("Released","November 2026")}${row("Available as","Web app and Android app")}${row("Internet","Not needed for calculations")}</tbody></table></section>
  ${IN_APP?"":`<section class="card" id="install"><h2>Install the app</h2><p><strong>Android</strong></p><a class="btn solid" href="${APK_URL}" download="Samplewize.apk">Download the Android app</a><p class="cap">The app is not from the Play Store, so Android will ask you to allow installation from your browser. It requests no device permissions.</p><p><strong>iPhone</strong></p><p>Open this site in Safari, tap Share, then tap Add to Home Screen. On newer iOS versions, you may need to tap More first.</p></section>`}
  <section class="card"><h2>Creator</h2><p><strong>Dr Surendran Venkataraman</strong><br>MBBS, MD, DNB (Community Medicine)<br>Assistant Professor (Senior Scale)<br>Department of Community Medicine<br>Indira Gandhi Medical College and Research Institute, Puducherry, India</p></section>
  <section class="card"><h2>How to cite</h2><p id="ab-cite">${esc(REFS.Samplewize)}</p><button class="btn" id="ab-copy" type="button">Copy citation</button></section>
  <section class="card"><h2>Accuracy</h2><p>The calculations reproduced 1,038 results from the validated companion Excel workbooks. Formulas come from the published sources cited on each screen. <a href="#references">View all references</a>.</p></section>
- <section class="card"><h2>Privacy</h2><p>Calculations run on your device. Values and study descriptions you enter are not sent anywhere. The app needs no account and shows no advertisements, and the Android app requests no device permissions.</p></section>
+ <section class="card"><h2>Privacy</h2><p>Calculations run on your device. Values and study descriptions you enter are not sent anywhere. The app needs no account and shows no advertisements, and the Android app requests no device permissions. The website keeps a total visitor count, counted once per browser, with no personal details. Messages you choose to post are stored in a sheet managed by the author and may be published after review.</p></section>
  <section class="card"><h2>Important notice</h2><p>Samplewize supports research planning. It does not replace review by a statistician or an ethics committee, and it does not suggest a target difference, margin or planning value. Users are responsible for the inputs they enter and for how they use the results.</p></section>
  <section class="card"><h2>Third-party components</h2><p>QR codes: qrcode-generator by Kazuhiko Arase, MIT licence. Fonts: IBM Plex Sans, Noto Sans Tamil and STIX Two, SIL Open Font License.</p></section>
  <section class="card"><h2>Copyright</h2><p>${COPYR} Published formulas remain the work of their cited authors.</p></section>
+ <section class="card" id="community"></section>
  </div></div>`;
  addCredit();
+ drawCommunity();COMM.ready.then(()=>{if($("#community"))drawCommunity();});
+ $("#to-comm").addEventListener("click",e=>{e.preventDefault();$("#community").scrollIntoView({behavior:"smooth",block:"start"});});
  $("#ab-copy").addEventListener("click",()=>copyFrom("#ab-cite","#ab-copy","Copy citation"));
+}
+const CT=["Query","Feedback","Review","Discussion"];
+const STARS=n=>n>0?"★".repeat(n)+"☆".repeat(5-n):"";
+function postHTML(p,kids){return `<article class="post"><header><b>${esc(p.name||"Anonymous")}</b><span>${esc(p.type)} · ${esc(p.date)}</span></header>${p.rating?`<p class="stars" aria-label="${p.rating} of 5 stars">${STARS(p.rating)}</p>`:""}<p>${esc(p.msg)}</p>${p.reply?`<div class="areply"><b>Reply from the author</b><p>${esc(p.reply)}</p></div>`:""}${kids.map(k=>`<div class="kid"><header><b>${esc(k.name||"Anonymous")}</b><span>${esc(k.date)}</span></header><p>${esc(k.msg)}</p>${k.reply?`<div class="areply"><b>Reply from the author</b><p>${esc(k.reply)}</p></div>`:""}</div>`).join("")}<button class="link" type="button" data-rp="${esc(p.id)}" data-nm="${esc(p.name||"Anonymous")}">Reply</button></article>`;}
+async function loadPosts(){
+ const box=$("#c-list");if(!box)return;box.innerHTML='<p class="cap">Loading posts.</p>';
+ try{const d=await(await fetch(COMM.api+"?a=posts")).json();const P=d.posts||[],top=P.filter(p=>!p.parent),ids=new Set(top.map(p=>p.id));if(!$("#c-list"))return;
+  $("#c-list").innerHTML=top.length?top.map(p=>postHTML(p,P.filter(k=>k.parent===p.id).reverse())).join(""):'<p class="cap">No posts yet. Yours could be the first.</p>';}
+ catch(e){if($("#c-list"))$("#c-list").innerHTML='<p class="cap">Posts could not be loaded. Please try again later.</p>';}
+}
+function drawCommunity(){
+ const c=$("#community");if(!c)return;const H="<h2>Queries, feedback and discussion</h2>";
+ if(IN_APP){c.innerHTML=H+'<p>Post queries, feedback and reviews, or join the discussion, on the Samplewize website. An internet connection is needed.</p><button class="btn solid" id="c-open" type="button">Open the website</button>';$("#c-open").addEventListener("click",()=>{try{window.SWAndroid.open(SITE_URL+"#about");}catch(e){}});return;}
+ if(!COMM.api){c.innerHTML=H+'<p>The discussion board will be available on the Samplewize website.</p>';return;}
+ c.innerHTML=H+`<p>Ask a question, share feedback or a review, or start a discussion. Posts appear after review by the author.</p>
+ <form id="c-form" autocomplete="off"><p class="flag okflag" id="c-rp" hidden></p>
+ <div class="field"><label for="c-type">Type</label><select id="c-type">${CT.map(t=>`<option>${t}</option>`).join("")}</select></div>
+ <div class="field" id="c-rate" hidden><label for="c-stars">Rating</label><select id="c-stars"><option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option></select></div>
+ <div class="field"><label for="c-name">Your name (optional)</label><input id="c-name" type="text" maxlength="60"></div>
+ <div class="field"><label for="c-msg">Your message</label><textarea id="c-msg" rows="4" maxlength="2000" required></textarea></div>
+ <input class="hp" id="c-web" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+ <p class="cap">Please do not include patient details or personal contact information.</p>
+ <button class="btn solid" id="c-send" type="submit">Post</button><p class="cap" id="c-st" role="status"></p></form><h3 class="c-h">Posts</h3><div id="c-list"></div>`;
+ const T=$("#c-type");T.addEventListener("change",()=>{$("#c-rate").hidden=T.value!=="Review";});
+ $("#c-form").addEventListener("submit",async ev=>{ev.preventDefault();const st=$("#c-st"),msg=$("#c-msg").value.trim();if(msg.length<3){st.textContent="Please enter your message.";return;}
+  const send=$("#c-send");send.disabled=true;st.textContent="Sending.";
+  try{const r=await(await fetch(COMM.api,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({type:COMM.parent?"Discussion":T.value,rating:T.value==="Review"&&!COMM.parent?+$("#c-stars").value:0,name:$("#c-name").value.trim(),msg,parent:COMM.parent||"",website:$("#c-web").value})})).json();
+   if(r.ok){$("#c-msg").value="";COMM.parent=null;$("#c-rp").hidden=true;st.textContent="Thank you. Your post will appear after review.";}else st.textContent=r.error==="busy"?"Too many posts just now. Please try again later.":"Your post could not be sent. Please try again.";}
+  catch(e){st.textContent="Your post could not be sent. Please check your connection.";}
+  send.disabled=false;});
+ $("#c-list").addEventListener("click",e=>{const b=e.target.closest("[data-rp]");if(!b)return;COMM.parent=b.dataset.rp;const r=$("#c-rp");r.hidden=false;r.textContent="Replying to "+b.dataset.nm;$("#c-form").scrollIntoView({behavior:"smooth",block:"start"});$("#c-msg").focus({preventScroll:true});});
+ loadPosts();
 }
 function drawRefs(){
  const list=Object.values(REFS).slice().sort((a,b)=>a.localeCompare(b));
