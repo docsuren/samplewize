@@ -53,7 +53,7 @@ p{margin:0}
 .bottom a.on{color:var(--on-accent);background:var(--accent);border-color:var(--accent)}
 .bottom{gap:6px;padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))!important}
 .shell{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr);align-items:start}
-.side{position:sticky;top:calc(57px + env(safe-area-inset-top,0px));height:calc(100vh - 57px - env(safe-area-inset-top,0px));overflow-y:auto;border-right:1px solid var(--line);padding-block:20px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;background:var(--surface)}
+.side{position:sticky;top:calc(var(--toph,57px) + env(safe-area-inset-top,0px));height:calc(100vh - var(--toph,57px) - env(safe-area-inset-top,0px));overflow-y:auto;border-right:1px solid var(--line);padding-block:20px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;background:var(--surface)}
 .pane{padding-block:28px 56px;padding-left:max(16px,4vw);padding-right:max(16px,4vw,env(safe-area-inset-right,0px));min-width:0}
 .pane-in{max-width:1120px;margin:0 auto}
 .side h2{margin-bottom:12px}
@@ -107,7 +107,7 @@ body.page-view .side{display:none}body.page-view .shell{grid-template-columns:mi
 .rpfig{margin:0}.rpfig svg{width:100%;height:auto;display:block}.rpfig figcaption{font-size:.8125rem;color:var(--muted)}.rpfig .grid line{stroke:var(--line);stroke-width:1}.rpfig .ax text{font-size:10px;fill:var(--muted)}.rpfig .tgt{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 3}.rpfig .cv{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}.rpfig .mk{fill:var(--accent);stroke:var(--surface);stroke-width:2}.rpfig .hit{fill:transparent;touch-action:pan-y;cursor:crosshair}.rpfig .xh{stroke:var(--muted);stroke-width:1}
 .sl{margin:0;padding-left:1.2em;display:grid;gap:4px}.smethods{display:grid;gap:6px}.smethods h3{font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:8px}.srow{display:grid;gap:1px;padding:10px 0;text-decoration:none;color:var(--ink);border-bottom:1px solid var(--tint)}.srow b{font-weight:600}.srow span{color:var(--muted);font-size:.875rem}.sback{justify-self:start;font-size:.9375rem}.slist{max-height:40vh;overflow-y:auto}.sform{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.sform .wide{grid-column:1/-1}
 .defjump{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}.defjump button{font:inherit;font-size:.8125rem;padding:6px 10px;color:var(--ink);background:var(--tint);border:1px solid var(--line);border-radius:5px;cursor:pointer}
-.defg{scroll-margin-top:72px}.def{padding:12px 0;border-top:1px solid var(--line)}.def:first-of-type{border-top:0;padding-top:0}.def h3{font-size:1rem;margin:0}.def .aka{margin:1px 0 0;font-size:.8125rem;color:var(--muted)}.def p{margin-top:4px}.def .deff{display:inline-block;margin-top:8px;padding:5px 10px;background:var(--tint);border-radius:4px;font-size:.9375rem;overflow-wrap:anywhere}
+.defg{scroll-margin-top:calc(var(--toph,57px) + 14px)}.def{padding:12px 0;border-top:1px solid var(--line)}.def:first-of-type{border-top:0;padding-top:0}.def h3{font-size:1rem;margin:0}.def .aka{margin:1px 0 0;font-size:.8125rem;color:var(--muted)}.def p{margin-top:4px}.def .deff{display:inline-block;margin-top:8px;padding:5px 10px;background:var(--tint);border-radius:4px;font-size:.9375rem;overflow-wrap:anywhere}
 .defhere summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:1.1rem}.defhere dl{margin:10px 0 0;display:grid;gap:10px}.defhere dt{font-weight:600}.defhere dd{margin:2px 0 0}
 @media (max-width:400px){.bottom{gap:3px;padding-left:4px!important;padding-right:4px!important}.bottom a{font-size:.6875rem;padding-left:0;padding-right:0}}
 [hidden]{display:none!important}
@@ -196,6 +196,10 @@ summary{cursor:pointer;padding:14px 16px;font-family:var(--display);font-weight:
 
 @media (min-width:861px){.side .credit{display:none}}
 @media (prefers-reduced-motion:no-preference){.row,.btn{transition:background-color .12s}}
+/* Tabs need their own row until the centred name and the tabs can sit side by side. */
+@media (min-width:861px) and (max-width:1799px){:root{--toph:93px}.top-in{row-gap:0}.top-r{display:contents}.brand{grid-row:1}.ham{grid-column:3;grid-row:1;justify-self:end}.tabs{grid-column:1/-1;grid-row:2;justify-self:center;padding-bottom:8px}.back{grid-row:1}}
+@media (min-width:861px) and (max-width:1120px){:root{--toph:92px}}
+@media (min-width:861px) and (max-width:1799px) and (max-height:520px){:root{--toph:0px}.top{position:static}}
 </style>
 <style>body{margin:0}:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}[hidden]{display:none!important}</style>
 </head>
