@@ -1,7 +1,7 @@
 {
  "name": "Samplewize",
  "short_name": "Samplewize",
- "description": "அளவுகோல் · The yardstick for sample size in medical research. Created and compiled by Dr Surendran Venkataraman and Dr Angusubalakshmi Rajasivachalam.",
+ "description": "அளவுகோல் · The yardstick for sample size in medical research. A WizeLabs initiative of WizeLabs Health. Created and compiled by Dr Surendran Venkataraman and Dr Angusubalakshmi Rajasivachalam.",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",

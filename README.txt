@@ -1,4 +1,5 @@
 Samplewize: installable web app
+A WizeLabs initiative of WizeLabs Health.
 
 To make the app public, upload all files in this folder to any HTTPS web host, such as GitHub Pages, Netlify or an institutional server. Keep the files together in one folder, including Samplewize.apk, which the Download the Android app button links to, and config.json, which holds the address of the visitor count and discussion service.
 
